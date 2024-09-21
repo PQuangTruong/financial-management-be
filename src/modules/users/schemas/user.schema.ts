@@ -6,6 +6,9 @@ export type UserSchema = HydratedDocument<Users>;
 @Schema({ timestamps: true })
 export class Users {
   @Prop()
+  account_name: string;
+
+  @Prop()
   name: string;
 
   @Prop()
@@ -22,8 +25,6 @@ export class Users {
 
   @Prop()
   image: number;
-
-  // Modal v2.1 :]
 
   @Prop({ default: 'User' })
   account_type: string;

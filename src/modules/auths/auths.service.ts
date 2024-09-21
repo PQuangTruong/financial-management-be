@@ -20,11 +20,11 @@ export class AuthsService {
     return await this.usersService.handleRegister(registerDto);
   };
 
-  async login(payload: { email: string; password: string }) {
-    const { email, password } = payload;
-    const user = await this.usersService.findByEmail(email);
+  async login(payload: { account_name: string; password: string }) {
+    const { account_name, password } = payload;
+    const user = await this.usersService.findNameAccount(account_name);
     if (!user) {
-      throw new BadRequestException(`Email or password incorrect.`);
+      throw new BadRequestException(`Account name incorrect.`);
     }
     const isValidPPass = await comparePassword(password, user.password);
 
@@ -33,6 +33,7 @@ export class AuthsService {
     }
     const token = this.jwtService.sign({
       userId: user._id,
+      account_name: user.account_name,
       email: user.email,
       name: user.name,
     });
@@ -72,7 +73,7 @@ export class AuthsService {
           subject: 'New Activation Code',
           template: 'register', // Sử dụng template bạn đã định nghĩa
           context: {
-            name: user.name || user.email,
+            account_name: user.account_name || user.email,
             activationCode: newCodeId,
           },
         });

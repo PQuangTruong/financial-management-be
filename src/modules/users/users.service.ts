@@ -49,6 +49,9 @@ export class UsersService {
   async findByEmail(email: string) {
     return await this.userModal.findOne({ email });
   }
+  async findNameAccount(account_name: string) {
+    return await this.userModal.findOne({ account_name });
+  }
 
   // Register Func
   handleRegister = async (createAuthDto: CreateAuthDto) => {
@@ -63,7 +66,7 @@ export class UsersService {
     const codeId = RandomNumber();
 
     const user = await this.userModal.create({
-      name: payload?.name,
+      account_name: payload?.account_name,
       email: payload?.email,
       password: hashPass,
       is_active: false,
@@ -76,7 +79,7 @@ export class UsersService {
       subject: 'Active your account ✔', // Subject line
       template: 'register',
       context: {
-        name: user.name || user.email,
+        account_name: user.account_name || user.email,
         activationCode: codeId,
       },
     });

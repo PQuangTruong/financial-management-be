@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional } from '@nestjs/class-validator';
+import { IsEmail, IsNotEmpty, IsString } from '@nestjs/class-validator';
 import { Type } from 'class-transformer';
 import { Matches, ValidateNested } from 'class-validator';
 
@@ -14,8 +14,9 @@ class CreatePayloadAuthDto {
   })
   password: string;
 
-  @IsOptional()
-  name: string;
+  @IsNotEmpty()
+  @IsString({ message: 'Please enter your account name string' })
+  account_name: string;
 }
 
 export class CreateAuthDto {
