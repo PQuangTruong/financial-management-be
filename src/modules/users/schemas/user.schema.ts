@@ -29,10 +29,10 @@ export class Users {
   account_type: string;
 
   @Prop({ default: false })
-  is_active: string;
+  is_active: boolean;
 
   @Prop()
-  code_id: string;
+  code_id: number;
 
   @Prop()
   code_expire: string;
