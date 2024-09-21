@@ -25,8 +25,8 @@ export class AuthsController {
 
   @Post('login')
   login(@Body() body: LoginDto) {
-    const { email, password } = body.payload;
-    return this.authService.login({ email, password });
+    const { account_name, password } = body.payload;
+    return this.authService.login({ account_name, password });
   }
   @Post('verify')
   async verifyCode(@Body() verifyDto: VerifyCodeDto) {

@@ -3,10 +3,9 @@ import { Type } from 'class-transformer';
 import { IsEmail, Matches } from '@nestjs/class-validator';
 
 export class LoginPayloadDto {
-  @IsEmail()
   @IsNotEmpty()
   @IsString()
-  email: string;
+  account_name: string;
 
   @IsString()
   password: string;
