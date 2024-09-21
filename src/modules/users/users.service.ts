@@ -3,15 +3,19 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Users } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { hashPassword } from '@/others/password_custom';
-import { CreateAuthDto } from '../auths/dto/create-auth.dto';
+import { Model } from 'mongoose';
+import { hashPassword } from '@/others/password-custom';
+import { CreateAuthDto } from '../auths/dto/register-auth.dto';
+import dayjs from 'dayjs';
+import { MailerService } from '@nestjs-modules/mailer';
+import RandomNumber from '@/others/random-code';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(Users.name)
     private userModal: Model<Users>,
+    private readonly mailService: MailerService,
   ) {}
 
   isEmailExist = async (email: string) => {
@@ -47,21 +51,34 @@ export class UsersService {
   }
 
   // Register Func
-  handleRegister = async (payload: CreateAuthDto) => {
-    const { name, email, password } = payload;
-    const isExist = await this.isEmailExist(email);
+  handleRegister = async (createAuthDto: CreateAuthDto) => {
+    const { payload } = createAuthDto;
+    const isExist = await this.isEmailExist(payload.email);
     if (isExist) {
       throw new BadRequestException(
-        `Email is exist: ${email}. Please use another email!`,
+        `Email is exist: ${payload.email}. Please use another email!`,
       );
     }
-    const hashPass = await hashPassword(password);
+    const hashPass = await hashPassword(payload.password);
+    const codeId = RandomNumber();
 
     const user = await this.userModal.create({
       name: payload?.name,
       email: payload?.email,
       password: hashPass,
       is_active: false,
+      code_id: codeId,
+      code_expire: dayjs().add(5, 'minutes'),
+    });
+
+    this.mailService.sendMail({
+      to: user.email, // list of receivers
+      subject: 'Active your account ✔', // Subject line
+      template: 'register',
+      context: {
+        name: user.name || user.email,
+        activationCode: codeId,
+      },
     });
 
     return user;
