@@ -18,13 +18,13 @@ export class Users {
   password: string;
 
   @Prop()
-  phone: string;
+  phone: number;
 
   @Prop()
   address: string;
 
   @Prop()
-  image: number;
+  image: string;
 
   @Prop({ default: 'User' })
   account_type: string;

@@ -1,14 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePayloadUserDto, UpdateUserDto } from './dto/update-user.dto';
 import { Users } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { hashPassword } from '@/others/password-custom';
 import { CreateAuthDto } from '../auths/dto/register-auth.dto';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import RandomNumber from '@/others/random-code';
+import { Type } from '@nestjs/class-transformer';
 
 @Injectable()
 export class UsersService {
@@ -69,6 +74,10 @@ export class UsersService {
       account_name: payload?.account_name,
       email: payload?.email,
       password: hashPass,
+      name: payload?.name ?? null,
+      phone: payload?.phone ?? null,
+      address: payload?.address ?? null,
+      image: payload?.image ?? null,
       is_active: false,
       code_id: codeId,
       code_expire: dayjs().add(5, 'minutes'),
@@ -91,15 +100,50 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async getUser(id: string) {
+    const user = await this.userModal.findById(id);
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findById(_id: string) {
+    const userId = new Types.ObjectId(_id);
+    return await this.userModal.findOne({ userId });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(
+    _id: string,
+    payload: {
+      name?: string;
+      phone?: number;
+      address?: string;
+      image?: string;
+    },
+  ) {
+    const user = await this.userModal.findById(_id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Cập nhật các trường nếu có giá trị mới
+    user.name = payload.name ?? user.name;
+    user.phone = payload.phone ?? user.phone;
+    user.address = payload.address ?? user.address;
+    user.image = payload.image ?? user.image;
+
+    await user.save();
+
+    return user;
+  }
+  async delete(id: string) {
+    const userDelete = await this.userModal.findById(id);
+
+    if (!userDelete) {
+      throw new NotFoundException('User not found');
+    }
+    await this.userModal.findByIdAndDelete(id);
+
+    return {
+      message: 'Delete user successfully',
+    };
   }
 }

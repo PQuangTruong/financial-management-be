@@ -32,7 +32,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           },
         },
         defaults: {
-          from: '"Nhóm 2" <lienthong@gmail.com>',
+          from: '"Nhóm 2 Công nghệ phần mềm" <lienthong@gmail.com>',
         },
         //preview: true,
         template: {

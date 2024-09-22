@@ -35,7 +35,7 @@ export class AuthsService {
       userId: user._id,
       account_name: user.account_name,
       email: user.email,
-      name: user.name,
+      account_type: user.account_type,
     });
 
     return {
@@ -71,7 +71,7 @@ export class AuthsService {
         await this.mailService.sendMail({
           to: user.email,
           subject: 'New Activation Code',
-          template: 'register', // Sử dụng template bạn đã định nghĩa
+          template: 'register',
           context: {
             account_name: user.account_name || user.email,
             activationCode: newCodeId,

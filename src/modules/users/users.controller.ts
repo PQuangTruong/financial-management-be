@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,18 +21,22 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
+  @Get('get-user/:id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.getUser(id);
+  }
+  @Patch('update-user/:id')
+  async updateUser(
+    @Param('id') _id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const { name, phone, address, image } = updateUserDto.payload;
+
+    return await this.usersService.update(_id, { name, phone, address, image });
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
+  @Delete('delete-user/:id')
   remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.delete(id);
   }
 }

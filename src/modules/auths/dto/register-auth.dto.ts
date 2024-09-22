@@ -1,12 +1,19 @@
-import { IsEmail, IsNotEmpty, IsString } from '@nestjs/class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from '@nestjs/class-validator';
 import { Type } from 'class-transformer';
 import { Matches, ValidateNested } from 'class-validator';
 
 class CreatePayloadAuthDto {
   @IsNotEmpty()
+  account_name: string;
+  @IsNotEmpty()
   @IsEmail({ message: 'The email you entered is not in the correct format' })
   email: string;
-
   @IsNotEmpty()
   @Matches(/^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/, {
     message:
@@ -14,9 +21,16 @@ class CreatePayloadAuthDto {
   })
   password: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString({ message: 'Please enter your account name string' })
-  account_name: string;
+  name: string;
+  @IsNumber()
+  @IsOptional()
+  phone: number;
+  @IsOptional()
+  address: string;
+  @IsOptional()
+  image: string;
 }
 
 export class CreateAuthDto {
