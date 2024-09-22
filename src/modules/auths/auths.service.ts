@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateAuthDto } from './dto/register-auth.dto';
 import { UsersService } from '../users/users.service';
 import { comparePassword } from '@/others/password-custom';
@@ -59,7 +63,6 @@ export class AuthsService {
     const isCodeExpired = dayjs().isAfter(user.code_expire);
     if (isCodeExpired) {
       if (isCodeExpired) {
-        // Tạo mã mới
         const newCodeId = RandomNumber();
         const newExpireTime = dayjs().add(5, 'minutes').toISOString();
 
@@ -67,7 +70,6 @@ export class AuthsService {
         user.code_expire = newExpireTime;
         await user.save();
 
-        // Gửi mã mới qua email
         await this.mailService.sendMail({
           to: user.email,
           subject: 'New Activation Code',
@@ -92,5 +94,13 @@ export class AuthsService {
     await user.save();
 
     return { message: 'Account activated successfully' };
+  }
+
+  async validateToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

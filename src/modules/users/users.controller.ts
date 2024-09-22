@@ -7,36 +7,47 @@ import {
   Param,
   Delete,
   BadRequestException,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
+import { AuthsService } from '../auths/auths.service';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthsService,
+  ) {}
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get('get-user')
+  async findUser(@Req() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.usersService.getUser(decodedToken.userId);
   }
+  @Patch('update-user')
+  async updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
 
-  @Get('get-user/:id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.getUser(id);
-  }
-  @Patch('update-user/:id')
-  async updateUser(
-    @Param('id') _id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
     const { name, phone, address, image } = updateUserDto.payload;
-
-    return await this.usersService.update(_id, { name, phone, address, image });
+    return await this.usersService.update(decodedToken.userId, {
+      name,
+      phone,
+      address,
+      image,
+    });
   }
 
-  @Delete('delete-user/:id')
-  remove(@Param('id') id: string) {
-    return this.usersService.delete(id);
+  @Delete('delete-user')
+  async removeUser(@Req() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.usersService.delete(decodedToken.userId);
   }
 }
