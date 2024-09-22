@@ -6,6 +6,14 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      //add more domains
+    ],
+    credentials: true,
+  });
+
   const configService = app.get(ConfigService);
   const port = configService.get('PORT');
 
