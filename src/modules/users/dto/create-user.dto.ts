@@ -10,7 +10,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
-  phone: string;
+  phone: number;
 
   address: string;
 

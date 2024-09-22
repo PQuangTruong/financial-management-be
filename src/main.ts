@@ -12,6 +12,7 @@ async function bootstrap() {
     ],
     credentials: true,
   });
+
   const configService = app.get(ConfigService);
   const port = configService.get('PORT');
 
