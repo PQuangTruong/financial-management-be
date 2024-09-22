@@ -100,8 +100,11 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  async getUser(id: string) {
-    const user = await this.userModal.findById(id);
+  async getUser(userId: string) {
+    const user = await this.userModal.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     return user;
   }
 
@@ -111,7 +114,7 @@ export class UsersService {
   }
 
   async update(
-    _id: string,
+    userId: string,
     payload: {
       name?: string;
       phone?: number;
@@ -119,7 +122,7 @@ export class UsersService {
       image?: string;
     },
   ) {
-    const user = await this.userModal.findById(_id);
+    const user = await this.userModal.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -134,13 +137,13 @@ export class UsersService {
 
     return user;
   }
-  async delete(id: string) {
-    const userDelete = await this.userModal.findById(id);
+  async delete(userId: string) {
+    const userDelete = await this.userModal.findById(userId);
 
     if (!userDelete) {
       throw new NotFoundException('User not found');
     }
-    await this.userModal.findByIdAndDelete(id);
+    await this.userModal.findByIdAndDelete(userId);
 
     return {
       message: 'Delete user successfully',
