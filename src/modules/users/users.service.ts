@@ -137,13 +137,13 @@ export class UsersService {
 
     return user;
   }
-  async delete(userId: string) {
-    const userDelete = await this.userModal.findById(userId);
+  async delete(_id: string) {
+    const userDelete = await this.userModal.findById(_id);
 
     if (!userDelete) {
       throw new NotFoundException('User not found');
     }
-    await this.userModal.findByIdAndDelete(userId);
+    await this.userModal.findByIdAndDelete(_id);
 
     return {
       message: 'Delete user successfully',

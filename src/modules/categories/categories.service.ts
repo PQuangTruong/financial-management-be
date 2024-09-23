@@ -26,13 +26,14 @@ export class CategoriesService {
   };
 
   async create(payload: CreatePayloadCategoryDto, userId: string) {
-    const { cate_name } = payload;
+    const { cate_name, cate_type } = payload;
     const cateExisted = await this.isCateExist(cate_name);
     if (cateExisted) {
       throw new BadRequestException(`Category ${cate_name} is existed`);
     }
     const category = await this.usecateModal.create({
       cate_name: payload?.cate_name,
+      cate_type: payload?.cate_type,
       createdBy: userId,
     });
     return category;
@@ -43,10 +44,21 @@ export class CategoriesService {
     return await this.usecateModal.findOne({ _id: cateId });
   }
 
+  async findCategoriesByType(cate_type?: string) {
+    const categories = await this.usecateModal.find({ cate_type });
+
+    if (categories.length === 0) {
+      throw new NotFoundException(`No categories found for type: ${cate_type}`);
+    }
+
+    return categories;
+  }
+
   async update(
     _id: string,
     payload: {
       cate_name?: string;
+      cate_type?: string;
     },
   ) {
     const cate = await this.usecateModal.findById(_id);
@@ -56,6 +68,7 @@ export class CategoriesService {
 
     // Cập nhật các trường nếu có giá trị mới
     cate.cate_name = payload.cate_name ?? cate.cate_name;
+    cate.cate_type = payload.cate_type ?? cate.cate_type;
 
     await cate.save();
 

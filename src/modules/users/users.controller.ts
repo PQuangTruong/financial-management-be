@@ -45,9 +45,7 @@ export class UsersController {
   }
 
   @Delete('delete-user')
-  async removeUser(@Req() req) {
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = await this.authService.validateToken(token);
-    return this.usersService.delete(decodedToken.userId);
+  async removeUser(@Param() id) {
+    return this.usersService.delete(id);
   }
 }

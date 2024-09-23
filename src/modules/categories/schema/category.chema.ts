@@ -8,6 +8,9 @@ export class Category {
   @Prop()
   cate_name: string;
 
+  @Prop()
+  cate_type: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   createdBy: Types.ObjectId;
 }
