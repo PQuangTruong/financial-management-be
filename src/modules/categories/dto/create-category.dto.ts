@@ -5,6 +5,8 @@ export class CreatePayloadCategoryDto {
   @IsString()
   @IsNotEmpty()
   cate_name: string;
+  @IsString()
+  cate_type: string;
 }
 
 export class CreateCategoryDto {

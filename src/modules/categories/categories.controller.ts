@@ -10,7 +10,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import {
+  CreateCategoryDto,
+  CreatePayloadCategoryDto,
+} from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AuthsService } from '../auths/auths.service';
 import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
@@ -27,8 +30,17 @@ export class CategoriesController {
   async create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    const { cate_name } = createCategoryDto.payload;
-    return this.categoriesService.create({ cate_name }, decodedToken.userId);
+    const { cate_name, cate_type } = createCategoryDto.payload;
+    return this.categoriesService.create(
+      { cate_name, cate_type },
+      decodedToken.userId,
+    );
+  }
+
+  @Get('categories-type')
+  async getCategoriesByType(@Body('payload') payload: { cate_type: string }) {
+    const { cate_type } = payload;
+    return await this.categoriesService.findCategoriesByType(cate_type);
   }
 
   @Patch('update-cate/:id')
@@ -36,8 +48,8 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    const { cate_name } = updateCategoryDto.payload;
-    return this.categoriesService.update(id, { cate_name });
+    const { cate_name, cate_type } = updateCategoryDto.payload;
+    return this.categoriesService.update(id, { cate_name, cate_type });
   }
 
   @Delete('delete-cate/:id')
