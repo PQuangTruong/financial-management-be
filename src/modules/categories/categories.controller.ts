@@ -38,9 +38,10 @@ export class CategoriesController {
   }
 
   @Get('categories-type')
-  async getCategoriesByType(@Body('payload') payload: { cate_type: string }) {
-    const { cate_type } = payload;
-    return await this.categoriesService.findCategoriesByType(cate_type);
+  async getCategoriesByType(@Body('payload') payload: { cate_type?: string }) {
+    return await this.categoriesService.findCategoriesByType(
+      payload?.cate_type,
+    );
   }
 
   @Patch('update-cate/:id')

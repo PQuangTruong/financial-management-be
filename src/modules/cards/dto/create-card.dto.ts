@@ -3,15 +3,14 @@ import { Type } from 'class-transformer';
 import { IsString, ValidateNested } from 'class-validator';
 
 export class CreatePayloadCardDto {
+  // @IsString()
+  // account_id: string;
   @IsString()
-  account_id: string;
-
-  @IsString()
-  bank_name: string;
+  card_code: string;
   @IsNumber()
   card_number: number;
   @IsNumber()
-  total_balance: number;
+  card_amount: number;
 }
 
 export class CreateCardDto {

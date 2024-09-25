@@ -1,17 +1,28 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { timeStamp } from 'console';
+import { Mongoose, Types } from 'mongoose';
 
 @Schema({
   timestamps: true,
 })
 export class Card {
+  // @Prop()
+  // account_id: string;
   @Prop()
-  account_id: string;
+  card_full_name: string;
 
   @Prop()
-  bank_name: string;
+  card_short_name: string;
+
+  @Prop()
+  card_code: string;
   @Prop()
   card_number: number;
   @Prop()
-  total_balance: number;
+  card_amount: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  createdBy: Types.ObjectId;
 }
+
+export const CardSchema = SchemaFactory.createForClass(Card);

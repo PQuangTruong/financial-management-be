@@ -35,16 +35,24 @@ export class AuthsService {
     if (!isValidPPass) {
       throw new BadRequestException(`Password incorrect.`);
     }
+    if (user.account_type !== 'User' && user.account_type !== 'Admin') {
+      throw new BadRequestException('Invalid account type.');
+    }
+    if (user.is_active === false) {
+      throw new BadRequestException('Account is not active');
+    }
     const token = this.jwtService.sign({
       userId: user._id,
       account_name: user.account_name,
       email: user.email,
       account_type: user.account_type,
+      is_active: user.is_active,
     });
 
     return {
       message: 'Login successfully',
       token,
+      account_type: user.account_type,
     };
   }
 
