@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/axios": "^3.0.3",
     "@nestjs/class-transformer": "^0.4.0",
     "@nestjs/class-validator": "^0.13.1",
     "@nestjs/common": "^10.0.0",
