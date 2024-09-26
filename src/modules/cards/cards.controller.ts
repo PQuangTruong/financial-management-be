@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CreateCardDto, CreatePayloadCardDto } from './dto/create-card.dto';
@@ -54,34 +55,34 @@ export class CardsController {
     return this.cardsService.getAllCard(decodedToken.userId);
   }
 
-  @Get()
-  findAll() {
-    return this.cardsService.findAll();
+  @UseGuards(JwtAuthGuard)
+  @Patch('update-card/:id')
+  async updateCard(
+    @Param('id') id: string,
+    @Body() updateCardDto: UpdateCardDto,
+    @Request() req,
+  ) {
+    const authorizationHeader = req.headers.authorization;
+    if (!authorizationHeader) {
+      throw new UnauthorizedException('Token không được cung cấp');
+    }
+    const token = authorizationHeader.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    if (!decodedToken?.userId) {
+      throw new UnauthorizedException('Token không hợp lệ');
+    }
+
+    const { card_code, card_number, card_amount } = updateCardDto.payload;
+
+    return this.cardsService.update(
+      id,
+      { card_code, card_number, card_amount },
+      decodedToken.userId,
+    );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cardsService.findOne(+id);
-  }
-
-  // @Patch('update-card/:id')
-  // async updateCard(
-  //   @Param('id') id: string,
-  //   @Body()
-  //   payload: {
-  //     card_code?: string;
-  //     card_number?: number;
-  //     card_amount?: number;
-  //   },
-  //   @Request() req,
-  // ) {
-  //   const token = req.headers.authorization.split(' ')[1];
-  //   const decodedToken = await this.authService.validateToken(token);
-  //   return this.cardsService.update(id, payload, decodedToken.userId);
-  // }
-
-  @Delete(':id')
+  @Delete('delete-card/:id')
   remove(@Param('id') id: string) {
-    return this.cardsService.remove(+id);
+    return this.cardsService.removeCard(id);
   }
 }

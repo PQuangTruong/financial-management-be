@@ -106,9 +106,10 @@ export class AuthsService {
 
   async validateToken(token: string) {
     try {
-      return this.jwtService.verify(token);
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
+      const decoded = this.jwtService.verify(token);
+      return decoded;
+    } catch (error) {
+      throw new UnauthorizedException('The token is invalid or has expired');
     }
   }
 }

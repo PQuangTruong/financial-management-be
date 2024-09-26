@@ -15,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
 export class CardsService {
   constructor(
     @InjectModel(Card.name)
-    private useCardModal: Model<CardsService>,
+    private useCardModal: Model<Card>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -80,39 +80,48 @@ export class CardsService {
     return await this.useCardModal.findOne({ _id: cateId });
   }
 
-  findAll() {
-    return `This action returns all cards`;
+  async update(
+    _id: string,
+    payload: {
+      card_code?: string;
+      card_number?: number;
+      card_amount?: number;
+    },
+    userId: string,
+  ) {
+    const card = await this.useCardModal.findOne({ _id, createdBy: userId });
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
+
+    const bankList = await this.getBankList();
+    const validBank = bankList.find(
+      (bank: any) => bank.code === card.card_code,
+    );
+    if (!validBank) {
+      throw new BadRequestException('Invalid bank code');
+    }
+    card.card_full_name = validBank.name;
+    card.card_short_name = validBank.shortName;
+    card.card_code = payload.card_code ?? card.card_code;
+    card.card_number = payload.card_number ?? card.card_number;
+    card.card_amount = payload.card_amount ?? card.card_amount;
+
+    await card.save();
+
+    return card;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} card`;
-  }
+  async removeCard(id: string) {
+    const cardDelete = await this.useCardModal.findById(id);
 
-  // async update(
-  //   _id: string,
-  //   payload: {
-  //     card_code?: string;
-  //     card_number?: number;
-  //     card_amount?: number;
-  //   },
-  //   userId: string,
-  // ) {
-  //   const card = await this.useCardModal.findOne({ _id, createdBy: userId });
-  //   if (!card) {
-  //     throw new NotFoundException('Card not found');
-  //   }
+    if (!cardDelete) {
+      throw new NotFoundException('Card not found');
+    }
+    await this.useCardModal.findByIdAndDelete(id);
 
-  //   // Cập nhật các trường nếu có giá trị mới
-  //   card.card_code = payload.card_code ?? card.card_code;
-  //   card.card_number = payload.card_number ?? card.card_number;
-  //   card.card_amount = payload.card_amount ?? card.card_amount;
-
-  //   await card.save();
-
-  //   return card;
-  // }
-
-  remove(id: number) {
-    return `This action removes a #${id} card`;
+    return {
+      message: 'Delete Card successfully',
+    };
   }
 }
