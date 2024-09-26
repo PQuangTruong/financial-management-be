@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Transaction } from './schemas/transaction.schema';
+import { Model } from 'mongoose';
+import { Card } from '../cards/schema/card.schema';
 
 @Injectable()
 export class TransactionsService {
-  create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
-  }
+  constructor(
+    @InjectModel(Transaction.name)
+    private useTransModel: Model<Transaction>,
+    @InjectModel(Card.name)
+    private useCardModal: Model<Card>,
+  ) {}
 
-  findAll() {
-    return `This action returns all transactions`;
-  }
+  async createTransaction(
+    createTransactionDto: CreateTransactionDto,
+    userId: string,
+  ) {
+    const { card_id, trans_amount, trans_type } = createTransactionDto;
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
-  }
+    // Kiểm tra thẻ có tồn tại không
+    const card = await this.useCardModal.findById(card_id);
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
+    // Kiểm tra loại giao dịch và cập nhật số tiền tương ứng
+    if (trans_type === 'expense') {
+      // Giảm số tiền trong thẻ nếu là giao dịch chi tiêu
+      if (card.card_amount < trans_amount) {
+        throw new BadRequestException('Insufficient funds on the card');
+      }
+      card.card_amount -= trans_amount;
+    } else if (trans_type === 'income') {
+      // Tăng số tiền trong thẻ nếu là giao dịch thu nhập
+      card.card_amount += trans_amount;
+    } else {
+      throw new BadRequestException('Invalid transaction type');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+    // Lưu thay đổi cho thẻ
+    await card.save();
+
+    // Tạo mới giao dịch
+    const transaction = await this.useTransModel.create({
+      ...createTransactionDto,
+      createdBy: userId,
+    });
+
+    return transaction;
   }
 }
