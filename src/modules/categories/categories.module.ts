@@ -14,6 +14,6 @@ import { AuthsModule } from '../auths/auths.module';
   ],
   controllers: [CategoriesController],
   providers: [CategoriesService],
-  exports: [CategoriesService],
+  exports: [CategoriesService, MongooseModule],
 })
 export class CategoriesModule {}

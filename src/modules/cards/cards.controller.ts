@@ -47,7 +47,7 @@ export class CardsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('get-card')
+  @Post('get-card')
   async getCard(@Request() req) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
@@ -78,6 +78,25 @@ export class CardsController {
       id,
       { card_code, card_number, card_amount },
       decodedToken.userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('update-card-amount/:id')
+  async updateCardAmount(
+    @Param('id') id: string, // id là cardId
+    @Body() updateCardDto: UpdateCardDto,
+    @Request() req,
+  ) {
+    const { card_number } = updateCardDto.payload;
+    const { trans_amount, trans_type } = updateCardDto.transaction;
+
+    // Truyền đúng cardId vào phương thức service
+    return this.cardsService.updateCardAmount(
+      id, // Chuyển cardId từ tham số
+      card_number,
+      trans_amount,
+      trans_type,
     );
   }
 
