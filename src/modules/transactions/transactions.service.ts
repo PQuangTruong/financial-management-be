@@ -24,9 +24,16 @@ export class TransactionsService {
     const { card_id, category_id, trans_amount, trans_type } =
       createTransactionDto;
 
+    // Tìm thẻ theo card_id
     const card = await this.useCardModel.findById(card_id);
     if (!card) {
       throw new NotFoundException('Card not found');
+    }
+
+    if (trans_type === 'expense' && card.card_amount < trans_amount) {
+      throw new BadRequestException(
+        'The amount of money on the card is not enough to make this transaction',
+      );
     }
 
     const category = await this.useCategoryModel.findById(category_id);
@@ -38,6 +45,14 @@ export class TransactionsService {
       ...createTransactionDto,
       createdBy: userId,
     });
+
+    if (trans_type === 'expense') {
+      card.card_amount -= trans_amount;
+      await card.save();
+    } else if (trans_type === 'income') {
+      card.card_amount += trans_amount;
+      await card.save();
+    }
 
     const populatedTransaction = await this.useTransModel
       .findById(transaction._id)
@@ -56,15 +71,35 @@ export class TransactionsService {
         card_code: card.card_code,
         card_amount: card.card_amount,
       },
+      category: {
+        category_name: category.cate_name,
+      },
       populatedTransaction,
     };
   }
 
-  async getUserTransactions(userId: string) {
-    return await this.useTransModel
-      .find({ createdBy: userId })
+  async getTransactionsByType(
+    userId: string,
+    transType?: 'income' | 'expense' | 'saving',
+  ) {
+    const filter = { createdBy: userId };
+
+    if (transType) {
+      filter['trans_type'] = transType;
+    }
+
+    const transactions = await this.useTransModel
+      .find(filter)
       .populate('card_id')
       .populate('category_id')
       .exec();
+
+    if (!transactions || transactions.length === 0) {
+      throw new NotFoundException(
+        `No transactions found ${transType ? transType : 'sir'}`,
+      );
+    }
+
+    return transactions;
   }
 }
