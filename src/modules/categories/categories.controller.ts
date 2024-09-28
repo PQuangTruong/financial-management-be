@@ -37,7 +37,7 @@ export class CategoriesController {
     );
   }
 
-  @Get('categories-type')
+  @Post('categories-type')
   async getCategoriesByType(@Body('payload') payload: { cate_type?: string }) {
     return await this.categoriesService.findCategoriesByType(
       payload?.cate_type,

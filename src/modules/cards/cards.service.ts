@@ -61,6 +61,7 @@ export class CardsService {
       card_short_name: validBank.shortName,
       card_number: payload?.card_number,
       card_amount: payload?.card_amount,
+      card_code: payload?.card_code,
       createdBy: userId,
     });
 
@@ -78,6 +79,11 @@ export class CardsService {
   async findById(_id: string) {
     const cateId = new Types.ObjectId(_id);
     return await this.useCardModal.findOne({ _id: cateId });
+  }
+
+  async findByCardNumber(card_number: number) {
+    const cardNumber = card_number;
+    return await this.useCardModal.findOne({ card_number: cardNumber });
   }
 
   async update(
@@ -123,5 +129,40 @@ export class CardsService {
     return {
       message: 'Delete Card successfully',
     };
+  }
+
+  // Cập nhật số tiền trong thẻ (dùng cho transaction)
+  async updateCardAmount(
+    cardId: string, // Nhận cardId từ tham số
+    card_number: number,
+    trans_amount: number,
+    trans_type: string,
+  ) {
+    const card = await this.useCardModal.findById(cardId);
+    if (!card) {
+      throw new NotFoundException('Not found your card id');
+    }
+
+    // Kiểm tra xem card_number có tồn tại không (nếu cần thiết)
+    const cardNum = await this.findByCardNumber(card_number);
+    if (!cardNum) {
+      throw new NotFoundException('Not found your card account');
+    }
+
+    // Cập nhật số dư
+    if (trans_type === 'expense') {
+      if (card.card_amount < trans_amount) {
+        throw new BadRequestException('Số dư trong thẻ không đủ');
+      }
+      card.card_amount -= trans_amount;
+    } else if (trans_type === 'income') {
+      card.card_amount += trans_amount;
+    } else {
+      throw new BadRequestException('Loại giao dịch không hợp lệ');
+    }
+
+    await card.save();
+
+    return card;
   }
 }

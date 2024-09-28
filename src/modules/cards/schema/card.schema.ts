@@ -6,8 +6,6 @@ import { Mongoose, Types } from 'mongoose';
   timestamps: true,
 })
 export class Card {
-  // @Prop()
-  // account_id: string;
   @Prop()
   card_full_name: string;
 

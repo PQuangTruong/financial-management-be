@@ -1,14 +1,13 @@
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { InjectModel } from '@nestjs/mongoose';
 import { Transaction } from './schemas/transaction.schema';
-import { Model } from 'mongoose';
 import { Card } from '../cards/schema/card.schema';
+import { Category } from '../categories/schema/category.chema';
 
 @Injectable()
 export class TransactionsService {
@@ -16,44 +15,56 @@ export class TransactionsService {
     @InjectModel(Transaction.name)
     private useTransModel: Model<Transaction>,
     @InjectModel(Card.name)
-    private useCardModal: Model<Card>,
+    private useCardModel: Model<Card>,
+    @InjectModel(Category.name)
+    private useCategoryModel: Model<Category>,
   ) {}
 
-  async createTransaction(
-    createTransactionDto: CreateTransactionDto,
-    userId: string,
-  ) {
-    const { card_id, trans_amount, trans_type } = createTransactionDto;
+  async createTransaction(createTransactionDto, userId: string) {
+    const { card_id, category_id, trans_amount, trans_type } =
+      createTransactionDto;
 
-    // Kiểm tra thẻ có tồn tại không
-    const card = await this.useCardModal.findById(card_id);
+    const card = await this.useCardModel.findById(card_id);
     if (!card) {
       throw new NotFoundException('Card not found');
     }
 
-    // Kiểm tra loại giao dịch và cập nhật số tiền tương ứng
-    if (trans_type === 'expense') {
-      // Giảm số tiền trong thẻ nếu là giao dịch chi tiêu
-      if (card.card_amount < trans_amount) {
-        throw new BadRequestException('Insufficient funds on the card');
-      }
-      card.card_amount -= trans_amount;
-    } else if (trans_type === 'income') {
-      // Tăng số tiền trong thẻ nếu là giao dịch thu nhập
-      card.card_amount += trans_amount;
-    } else {
-      throw new BadRequestException('Invalid transaction type');
+    const category = await this.useCategoryModel.findById(category_id);
+    if (!category) {
+      throw new NotFoundException('Category not found');
     }
 
-    // Lưu thay đổi cho thẻ
-    await card.save();
-
-    // Tạo mới giao dịch
     const transaction = await this.useTransModel.create({
       ...createTransactionDto,
       createdBy: userId,
     });
 
-    return transaction;
+    const populatedTransaction = await this.useTransModel
+      .findById(transaction._id)
+      .populate('card_id')
+      .populate('category_id')
+      .exec();
+
+    return {
+      transaction: {
+        amount: trans_amount,
+        trans_type: trans_type,
+      },
+      card: {
+        card_id: card._id,
+        card_number: card.card_number,
+        card_code: card.card_code,
+        card_amount: card.card_amount,
+      },
+      populatedTransaction,
+    };
+  }
+
+  async getUserTransactions(userId: string) {
+    return await this.useTransModel
+      .find({ createdBy: userId })
+      .populate('card_id')
+      .populate('category_id')
+      .exec();
   }
 }
