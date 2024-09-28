@@ -8,6 +8,7 @@ import {
   Delete,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -33,5 +34,15 @@ export class TransactionsController {
       createTransactionDto,
       decodedToken.userId,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('get-transaction-type')
+  async getTransactionsByType(
+    @Request() req,
+    @Query('transType') transType?: 'income' | 'expense' | 'saving',
+  ) {
+    const userId = req.user.userId;
+    return this.transactionsService.getTransactionsByType(userId, transType);
   }
 }
