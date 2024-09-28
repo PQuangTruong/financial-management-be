@@ -78,14 +78,11 @@ export class TransactionsService {
     };
   }
 
-  async getTransactionsByType(
-    userId: string,
-    transType?: 'income' | 'expense' | 'saving',
-  ) {
+  async getTransactionsByType(userId: string, trans_type?: string) {
     const filter = { createdBy: userId };
 
-    if (transType) {
-      filter['trans_type'] = transType;
+    if (trans_type) {
+      filter['trans_type'] = trans_type;
     }
 
     const transactions = await this.useTransModel
@@ -96,7 +93,7 @@ export class TransactionsService {
 
     if (!transactions || transactions.length === 0) {
       throw new NotFoundException(
-        `No transactions found ${transType ? transType : 'sir'}`,
+        `No transactions found ${trans_type ? trans_type : 'sir'}`,
       );
     }
 

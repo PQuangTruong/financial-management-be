@@ -51,8 +51,8 @@ export class CategoriesService {
     if (categories.length === 0) {
       throw new NotFoundException(
         cate_type
-          ? `Không tìm thấy danh mục nào với loại: ${cate_type}`
-          : 'Không tìm thấy danh mục nào',
+          ? `No categories found with type: ${cate_type}`
+          : 'No categories found',
       );
     }
 

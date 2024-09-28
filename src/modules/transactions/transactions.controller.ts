@@ -39,10 +39,13 @@ export class TransactionsController {
   @UseGuards(JwtAuthGuard)
   @Post('get-transaction-type')
   async getTransactionsByType(
+    @Body('payload') payload: { trans_type?: string },
     @Request() req,
-    @Query('transType') transType?: 'income' | 'expense' | 'saving',
   ) {
     const userId = req.user.userId;
-    return this.transactionsService.getTransactionsByType(userId, transType);
+    return this.transactionsService.getTransactionsByType(
+      userId,
+      payload?.trans_type,
+    );
   }
 }
