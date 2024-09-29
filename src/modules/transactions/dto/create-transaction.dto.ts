@@ -16,6 +16,7 @@ export class CreatePayloadTransactionDto {
   @IsString()
   trans_type: string;
 
+  @IsOptional()
   @IsString()
   trans_note?: string;
 

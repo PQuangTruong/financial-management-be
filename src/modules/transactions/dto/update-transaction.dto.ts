@@ -17,6 +17,7 @@ export class UpdatePayloadTransactionDto {
   @IsString()
   trans_type: string;
 
+  @IsOptional()
   @IsString()
   trans_note?: string;
 

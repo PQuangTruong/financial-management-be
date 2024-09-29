@@ -11,14 +11,16 @@ export class CreatePayloadSavingDto {
   @IsNumber()
   saving_amount: number;
 
-  @IsString()
-  saving_type: string;
-
   @IsOptional()
   @IsDate()
   @Type(() => Date)
   saving_date: Date;
 
+  @IsNumber()
+  saving_goal: number;
+
+  @IsString()
+  card_id?: string;
   @IsString()
   category_id: string;
 }
