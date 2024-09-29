@@ -62,6 +62,7 @@ export class CardsService {
       card_number: payload?.card_number,
       card_amount: payload?.card_amount,
       card_code: payload?.card_code,
+      card_logo: validBank.logo,
       createdBy: userId,
     });
 
@@ -143,13 +144,11 @@ export class CardsService {
       throw new NotFoundException('Not found your card id');
     }
 
-    // Kiểm tra xem card_number có tồn tại không (nếu cần thiết)
     const cardNum = await this.findByCardNumber(card_number);
     if (!cardNum) {
       throw new NotFoundException('Not found your card account');
     }
 
-    // Cập nhật số dư
     if (trans_type === 'expense') {
       if (card.card_amount < trans_amount) {
         throw new BadRequestException('Số dư trong thẻ không đủ');

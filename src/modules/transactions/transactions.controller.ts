@@ -28,12 +28,25 @@ export class TransactionsController {
     @Body() createTransactionDto: CreateTransactionDto,
     @Request() req,
   ) {
-    const { card_id, category_id, trans_amount, trans_type, trans_note } =
-      createTransactionDto.payload;
+    const {
+      card_id,
+      category_id,
+      trans_amount,
+      trans_type,
+      trans_note,
+      trans_date,
+    } = createTransactionDto.payload;
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
     return this.transactionsService.createTransaction(
-      { card_id, category_id, trans_amount, trans_type, trans_note },
+      {
+        card_id,
+        category_id,
+        trans_amount,
+        trans_type,
+        trans_note,
+        trans_date,
+      },
       decodedToken.userId,
     );
   }
@@ -42,13 +55,8 @@ export class TransactionsController {
   @Post('get-transaction-type')
   async getTransactionsByType(
     @Body('payload') payload: { trans_type?: string },
-    @Request() req,
   ) {
-    const userId = req.user.userId;
-    return this.transactionsService.getTransactionsByType(
-      userId,
-      payload?.trans_type,
-    );
+    return this.transactionsService.getTransactionsByType(payload?.trans_type);
   }
 
   @Patch('update-transaction/:id')

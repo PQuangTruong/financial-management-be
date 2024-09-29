@@ -7,7 +7,7 @@ export class UpdatePayloadTransactionDto {
   @IsNumber()
   trans_amount: number;
 
-  @IsEnum(['income', 'expense', 'saving'])
+  @IsString()
   trans_type: string;
 
   @IsString()
