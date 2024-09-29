@@ -28,10 +28,12 @@ export class TransactionsController {
     @Body() createTransactionDto: CreateTransactionDto,
     @Request() req,
   ) {
+    const { card_id, category_id, trans_amount, trans_type, trans_note } =
+      createTransactionDto.payload;
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
     return this.transactionsService.createTransaction(
-      createTransactionDto,
+      { card_id, category_id, trans_amount, trans_type, trans_note },
       decodedToken.userId,
     );
   }
@@ -46,6 +48,34 @@ export class TransactionsController {
     return this.transactionsService.getTransactionsByType(
       userId,
       payload?.trans_type,
+    );
+  }
+
+  @Patch('update-transaction/:id')
+  async updateTransaction(
+    @Param('id') transactionId: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+    @Request() req,
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    const { card_id, category_id, trans_amount, trans_type, trans_note } =
+      updateTransactionDto.payload;
+    return this.transactionsService.updateTransaction(
+      transactionId,
+      { card_id, category_id, trans_amount, trans_type, trans_note },
+      decodedToken.userId,
+    );
+  }
+
+  // Trong TransactionsController
+  @Delete('delete-transaction/:id')
+  async deleteTransaction(@Param('id') transactionId: string, @Request() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.transactionsService.deleteTransaction(
+      transactionId,
+      decodedToken.userId,
     );
   }
 }
