@@ -115,8 +115,14 @@ export class TransactionsService {
     updateTransactionDto: UpdatePayloadTransactionDto,
     userId: string,
   ) {
-    const { card_id, category_id, trans_amount, trans_type, trans_note } =
-      updateTransactionDto;
+    const {
+      card_id,
+      category_id,
+      trans_amount,
+      trans_type,
+      trans_note,
+      trans_date,
+    } = updateTransactionDto;
     const existingTransaction =
       await this.useTransModel.findById(transactionId);
     if (!existingTransaction) {
@@ -156,6 +162,8 @@ export class TransactionsService {
       updateTransactionDto.trans_type ?? existingTransaction.trans_type;
     existingTransaction.trans_note =
       updateTransactionDto.trans_note ?? existingTransaction.trans_note;
+    existingTransaction.trans_date =
+      updateTransactionDto.trans_date ?? existingTransaction.trans_date;
     existingTransaction.card_id =
       updateTransactionDto.card_id ?? existingTransaction.card_id;
     existingTransaction.category_id =

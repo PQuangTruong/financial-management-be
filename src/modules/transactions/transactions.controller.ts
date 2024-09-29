@@ -72,11 +72,24 @@ export class TransactionsController {
   ) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    const { card_id, category_id, trans_amount, trans_type, trans_note } =
-      updateTransactionDto.payload;
+    const {
+      card_id,
+      category_id,
+      trans_amount,
+      trans_type,
+      trans_note,
+      trans_date,
+    } = updateTransactionDto.payload;
     return this.transactionsService.updateTransaction(
       transactionId,
-      { card_id, category_id, trans_amount, trans_type, trans_note },
+      {
+        card_id,
+        category_id,
+        trans_amount,
+        trans_type,
+        trans_note,
+        trans_date,
+      },
       decodedToken.userId,
     );
   }
