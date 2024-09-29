@@ -1,6 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateTransactionDto } from './create-transaction.dto';
-import { IsEnum, IsNumber, IsString, ValidateNested } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UpdatePayloadTransactionDto {
@@ -12,6 +19,11 @@ export class UpdatePayloadTransactionDto {
 
   @IsString()
   trans_note?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  trans_date: Date;
 
   @IsString()
   card_id?: string;
