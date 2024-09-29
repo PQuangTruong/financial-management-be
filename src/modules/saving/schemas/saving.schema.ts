@@ -3,6 +3,9 @@ import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Saving extends Document {
+  @Prop({ type: Types.ObjectId, ref: 'Card' })
+  card_id: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Category' })
   category_id: string;
 
@@ -11,9 +14,6 @@ export class Saving extends Document {
 
   @Prop()
   saving_total_amount: number;
-
-  @Prop()
-  saving_type: string;
 
   @Prop({ required: true })
   saving_amount: number;
