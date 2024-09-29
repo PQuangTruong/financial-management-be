@@ -1,6 +1,13 @@
-import { IsNotEmpty, IsNumber, IsString, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsEnum,
+  ValidateNested,
+} from 'class-validator';
 
-export class CreateTransactionDto {
+export class CreatePayloadTransactionDto {
   @IsNumber()
   trans_amount: number;
 
@@ -15,4 +22,10 @@ export class CreateTransactionDto {
 
   @IsString()
   category_id: string;
+}
+
+export class CreateTransactionDto {
+  @ValidateNested()
+  @Type(() => CreatePayloadTransactionDto)
+  payload: CreatePayloadTransactionDto;
 }

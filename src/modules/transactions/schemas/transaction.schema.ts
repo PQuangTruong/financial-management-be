@@ -4,10 +4,10 @@ import { Document, Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class Transaction extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Category' })
-  category_id: Types.ObjectId;
+  category_id: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Card' })
-  card_id: Types.ObjectId;
+  card_id: string;
 
   // @Prop({ type: Types.ObjectId, ref: 'Savings' })
   // savings_id: Types.ObjectId;
