@@ -5,17 +5,24 @@ import {
   IsString,
   IsEnum,
   ValidateNested,
+  IsDate,
+  IsOptional,
 } from 'class-validator';
 
 export class CreatePayloadTransactionDto {
   @IsNumber()
   trans_amount: number;
 
-  @IsEnum(['income', 'expense', 'saving'])
+  @IsString()
   trans_type: string;
 
   @IsString()
   trans_note?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  trans_date: Date;
 
   @IsString()
   card_id?: string;

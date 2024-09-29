@@ -8,15 +8,14 @@ export class Transaction extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'Card' })
   card_id: string;
-
-  // @Prop({ type: Types.ObjectId, ref: 'Savings' })
-  // savings_id: Types.ObjectId;
-
-  @Prop({ enum: ['income', 'expense', 'saving'], required: true })
+  @Prop()
   trans_type: string;
 
   @Prop({ required: true })
   trans_amount: number;
+
+  @Prop({ type: Date })
+  trans_date: Date;
 
   @Prop()
   category_name: string;

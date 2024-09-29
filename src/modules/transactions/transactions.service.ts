@@ -29,15 +29,21 @@ export class TransactionsService {
     createTransactionDto: CreatePayloadTransactionDto,
     userId: string,
   ) {
-    const { card_id, category_id, trans_amount, trans_type, trans_note } =
-      createTransactionDto;
+    const {
+      card_id,
+      category_id,
+      trans_amount,
+      trans_type,
+      trans_note,
+      trans_date,
+    } = createTransactionDto;
 
     const card = await this.useCardModel.findById(card_id);
     if (!card) {
       throw new NotFoundException('Card not found');
     }
 
-    if (trans_type === 'expense' && card.card_amount < trans_amount) {
+    if (trans_type === 'TT001' && card.card_amount < trans_amount) {
       throw new BadRequestException(
         'The amount of money on the card is not enough to make this transaction',
       );
@@ -51,12 +57,13 @@ export class TransactionsService {
     const transaction = await this.useTransModel.create({
       ...createTransactionDto,
       createdBy: userId,
+      trans_date: createTransactionDto.trans_date || new Date(),
     });
 
-    if (trans_type === 'expense') {
+    if (trans_type === 'TT001') {
       card.card_amount -= trans_amount;
       await card.save();
-    } else if (trans_type === 'income') {
+    } else if (trans_type === 'TT002') {
       card.card_amount += trans_amount;
       await card.save();
     }
@@ -85,12 +92,8 @@ export class TransactionsService {
     };
   }
 
-  async getTransactionsByType(userId: string, trans_type?: string) {
-    const filter = { createdBy: userId };
-
-    if (trans_type) {
-      filter['trans_type'] = trans_type;
-    }
+  async getTransactionsByType(trans_type?: string) {
+    const filter = trans_type ? { trans_type } : {};
 
     const transactions = await this.useTransModel
       .find(filter)
@@ -128,12 +131,12 @@ export class TransactionsService {
       throw new NotFoundException('Card does not exist');
     }
 
-    if (trans_type === 'expense') {
+    if (trans_type === 'TT001') {
       if (card.card_amount < trans_amount) {
         throw new BadRequestException('Insufficient card balance');
       }
       card.card_amount -= trans_amount;
-    } else if (trans_type === 'income') {
+    } else if (trans_type === 'TT002') {
       card.card_amount += trans_amount;
     }
 
@@ -196,9 +199,9 @@ export class TransactionsService {
       throw new NotFoundException('Card does not exist');
     }
 
-    if (transaction.trans_type === 'expense') {
+    if (transaction.trans_type === 'TT001') {
       card.card_amount += transaction.trans_amount;
-    } else if (transaction.trans_type === 'income') {
+    } else if (transaction.trans_type === 'TT002') {
       card.card_amount -= transaction.trans_amount;
     }
 
