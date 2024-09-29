@@ -18,6 +18,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AuthsService } from '../auths/auths.service';
 import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoriesController {
   constructor(
@@ -25,7 +26,6 @@ export class CategoriesController {
     private readonly authService: AuthsService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post('create-category')
   async create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];
@@ -38,23 +38,38 @@ export class CategoriesController {
   }
 
   @Post('categories-type')
-  async getCategoriesByType(@Body('payload') payload: { cate_type?: string }) {
+  async getCategoriesByType(
+    @Body('payload') payload: { cate_type?: string },
+    @Request() req,
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
     return await this.categoriesService.findCategoriesByType(
+      decodedToken.userId,
       payload?.cate_type,
     );
   }
 
   @Patch('update-cate/:id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
+    @Request() req,
   ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
     const { cate_name, cate_type } = updateCategoryDto.payload;
-    return this.categoriesService.update(id, { cate_name, cate_type });
+    return this.categoriesService.update(
+      id,
+      { cate_name, cate_type },
+      decodedToken.userId,
+    );
   }
 
   @Delete('delete-cate/:id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.delete(id);
+  async remove(@Param('id') id: string, @Request() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.categoriesService.delete(id, decodedToken.userId);
   }
 }
