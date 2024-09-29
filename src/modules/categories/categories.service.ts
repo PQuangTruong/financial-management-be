@@ -44,7 +44,7 @@ export class CategoriesService {
     return await this.useCateModal.findOne({ _id: cateId });
   }
 
-  async findCategoriesByType(cate_type?: string) {
+  async findCategoriesByType(userId: string, cate_type?: string) {
     const query = cate_type ? { cate_type } : {};
 
     const categories = await this.useCateModal.find(query);
@@ -65,6 +65,7 @@ export class CategoriesService {
       cate_name?: string;
       cate_type?: string;
     },
+    userId,
   ) {
     const cate = await this.useCateModal.findById(_id);
     if (!cate) {
@@ -79,7 +80,7 @@ export class CategoriesService {
 
     return cate;
   }
-  async delete(id: string) {
+  async delete(id: string, userId: string) {
     const cateDelete = await this.useCateModal.findById(id);
 
     if (!cateDelete) {

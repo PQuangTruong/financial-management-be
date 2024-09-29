@@ -17,6 +17,7 @@ import { UpdateCardDto } from './dto/update-card.dto';
 import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
 import { AuthsService } from '../auths/auths.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('cards')
 export class CardsController {
   constructor(
@@ -24,7 +25,6 @@ export class CardsController {
     private readonly authService: AuthsService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post('create-card')
   async create(@Body() createCardDto: CreateCardDto, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];
@@ -46,7 +46,6 @@ export class CardsController {
     return this.cardsService.searchBanks(bankName);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('get-card')
   async getCard(@Request() req) {
     const token = req.headers.authorization.split(' ')[1];
@@ -55,7 +54,6 @@ export class CardsController {
     return this.cardsService.getAllCard(decodedToken.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('update-card/:id')
   async updateCard(
     @Param('id') id: string,
@@ -81,7 +79,6 @@ export class CardsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('update-card-amount/:id')
   async updateCardAmount(
     @Param('id') id: string, // id là cardId
@@ -91,9 +88,8 @@ export class CardsController {
     const { card_number } = updateCardDto.payload;
     const { trans_amount, trans_type } = updateCardDto.transaction;
 
-    // Truyền đúng cardId vào phương thức service
     return this.cardsService.updateCardAmount(
-      id, // Chuyển cardId từ tham số
+      id,
       card_number,
       trans_amount,
       trans_type,
@@ -101,7 +97,9 @@ export class CardsController {
   }
 
   @Delete('delete-card/:id')
-  remove(@Param('id') id: string) {
-    return this.cardsService.removeCard(id);
+  async remove(@Param('id') id: string, @Request() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.cardsService.removeCard(id, decodedToken.userId);
   }
 }

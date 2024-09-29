@@ -16,13 +16,13 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { AuthsService } from '../auths/auths.service';
 import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('transactions')
 export class TransactionsController {
   constructor(
     private readonly transactionsService: TransactionsService,
     private readonly authService: AuthsService,
   ) {}
-  @UseGuards(JwtAuthGuard)
   @Post('create-transaction')
   async create(
     @Body() createTransactionDto: CreateTransactionDto,
@@ -51,12 +51,17 @@ export class TransactionsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('get-transaction-type')
   async getTransactionsByType(
     @Body('payload') payload: { trans_type?: string },
+    @Request() req,
   ) {
-    return this.transactionsService.getTransactionsByType(payload?.trans_type);
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.transactionsService.getTransactionsByType(
+      decodedToken.userId,
+      payload?.trans_type,
+    );
   }
 
   @Patch('update-transaction/:id')
@@ -76,7 +81,6 @@ export class TransactionsController {
     );
   }
 
-  // Trong TransactionsController
   @Delete('delete-transaction/:id')
   async deleteTransaction(@Param('id') transactionId: string, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];

@@ -119,7 +119,7 @@ export class CardsService {
     return card;
   }
 
-  async removeCard(id: string) {
+  async removeCard(id: string, userId:string) {
     const cardDelete = await this.useCardModal.findById(id);
 
     if (!cardDelete) {
@@ -132,9 +132,8 @@ export class CardsService {
     };
   }
 
-  // Cập nhật số tiền trong thẻ (dùng cho transaction)
   async updateCardAmount(
-    cardId: string, // Nhận cardId từ tham số
+    cardId: string, 
     card_number: number,
     trans_amount: number,
     trans_type: string,

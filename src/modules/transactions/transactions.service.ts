@@ -92,7 +92,7 @@ export class TransactionsService {
     };
   }
 
-  async getTransactionsByType(trans_type?: string) {
+  async getTransactionsByType(userId: string, trans_type?: string) {
     const filter = trans_type ? { trans_type } : {};
 
     const transactions = await this.useTransModel
