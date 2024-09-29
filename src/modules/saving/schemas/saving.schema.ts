@@ -22,6 +22,9 @@ export class Saving extends Document {
   saving_date: Date;
 
   @Prop()
+  saving_option: string;
+
+  @Prop()
   category_name: string;
 }
 

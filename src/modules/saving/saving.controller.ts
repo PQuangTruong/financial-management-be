@@ -14,6 +14,11 @@ import { CreateSavingDto } from './dto/create-saving.dto';
 import { UpdateSavingDto } from './dto/update-saving.dto';
 import { AuthsService } from '../auths/auths.service';
 import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
+import {
+  UpdatePayloadSavingAmountDto,
+  UpdateSavingAmountDto,
+} from './dto/update-amount.dto';
+import { GoalOptionDto } from './dto/goal-option.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('saving')
@@ -57,6 +62,58 @@ export class SavingController {
         category_id,
         saving_goal,
       },
+      decodedToken.userId,
+    );
+  }
+
+  @Patch('update-saving-amount/:id')
+  async updateSavingAmount(
+    @Param('id') savingId: string,
+    @Body() updateSavingAmountDto: UpdateSavingAmountDto,
+    @Request() req,
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    const { card_id, saving_amount } = updateSavingAmountDto.payload;
+    return this.savingService.updateSavingAmount(
+      savingId,
+      {
+        card_id,
+        saving_amount,
+      },
+      decodedToken.userId,
+    );
+  }
+
+  @Post('check-saving-goal/:savingId')
+  async checkGoal(
+    @Param('savingId') savingId: string,
+    @Body() checkGoalDto: UpdateSavingAmountDto,
+    @Request() req,
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    const { card_id, saving_amount } = checkGoalDto.payload;
+    return this.savingService.checkSavingGoal(
+      savingId,
+      { card_id, saving_amount },
+      decodedToken.userId,
+    );
+  }
+
+  @Post('handle-saving-goal/:savingId')
+  async handleGoalOption(
+    @Param('savingId') savingId: string,
+    @Body() body: GoalOptionDto,
+    @Request() req,
+  ) {
+    const { card_id, saving_amount, saving_goal_amount, saving_option } =
+      body.payload;
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.savingService.handleSavingGoalOption(
+      savingId,
+      { card_id, saving_amount, saving_goal_amount, saving_option },
       decodedToken.userId,
     );
   }

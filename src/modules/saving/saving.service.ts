@@ -17,6 +17,8 @@ import { SavingModule } from './saving.module';
 import { Model } from 'mongoose';
 import { Category } from '../categories/schema/category.chema';
 import { Card } from '../cards/schema/card.schema';
+import { UpdatePayloadSavingAmountDto } from './dto/update-amount.dto';
+import { GoalPayloadOptionDto } from './dto/goal-option.dto';
 
 @Injectable()
 export class SavingService {
@@ -109,5 +111,148 @@ export class SavingService {
       },
       updatedTransaction,
     };
+  }
+
+  async updateSavingAmount(
+    savingId: string,
+    updateSavingDto: UpdatePayloadSavingAmountDto,
+    userId: string,
+  ) {
+    const { card_id, saving_amount } = updateSavingDto;
+    const existingTransaction = await this.useSavingModal.findById(savingId);
+    if (!existingTransaction) {
+      throw new NotFoundException('Transaction does not exist');
+    }
+
+    const card = await this.useCardModel.findById(card_id);
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
+
+    if (card.card_amount < saving_amount) {
+      throw new BadRequestException(
+        'The amount of money on the card is not enough to make this transaction',
+      );
+    }
+
+    const difference = saving_amount - existingTransaction.saving_amount;
+
+    if (difference > 0) {
+      if (card.card_amount < difference) {
+        throw new BadRequestException(
+          'The amount of money on the card is not enough to make this transaction',
+        );
+      }
+      card.card_amount -= difference;
+    } else if (difference < 0) {
+      card.card_amount += Math.abs(difference);
+    }
+
+    await card.save();
+
+    existingTransaction.saving_amount =
+      updateSavingDto.saving_amount ?? existingTransaction.saving_amount;
+
+    await existingTransaction.save();
+
+    const updatedTransaction = await this.useSavingModal.findById(savingId);
+
+    return {
+      updatedTransaction,
+    };
+  }
+
+  async checkSavingGoal(
+    savingId: string,
+    updateSavingDto: UpdatePayloadSavingAmountDto,
+    userId: string,
+  ) {
+    const { card_id, saving_amount } = updateSavingDto;
+
+    const saving = await this.useSavingModal.findById(savingId);
+    if (!saving) {
+      throw new NotFoundException('Saving transaction does not exist');
+    }
+
+    const card = await this.useCardModel.findById(card_id);
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
+
+    if (saving.saving_amount >= saving.saving_goals_amount) {
+      return {
+        message: 'Saving goal has been reached!',
+        options: [
+          {
+            action: 'increase_goal',
+            description: 'Do you want to increase the saving goal?',
+          },
+          {
+            action: 'transfer_to_card',
+            description:
+              'Do you want to transfer the saved amount to the card?',
+          },
+        ],
+      };
+    }
+
+    // Nếu chưa hoàn thành mục tiêu, chỉ cần lưu lại số tiền tiết kiệm
+    await saving.save();
+    return {
+      message: 'Saving updated successfully',
+      updatedSaving: saving,
+    };
+  }
+
+  async handleSavingGoalOption(
+    savingId: string,
+    goalOptionDto: GoalPayloadOptionDto,
+    userId: string,
+  ) {
+    const { card_id, saving_amount, saving_goal_amount, saving_option } =
+      goalOptionDto;
+
+    // Tìm mục tiêu tiết kiệm
+    const saving = await this.useSavingModal.findById(savingId);
+    if (!saving) {
+      throw new NotFoundException('Saving transaction does not exist');
+    }
+
+    // Xử lý lựa chọn tăng mục tiêu tiết kiệm
+    if (saving_option === 'SO001') {
+      if (typeof saving_goal_amount !== 'number' || saving_goal_amount <= 0) {
+        throw new BadRequestException('Invalid saving goal amount');
+      }
+
+      saving.saving_goals_amount += saving_goal_amount;
+      await saving.save();
+      return {
+        message: 'Saving goal increased successfully',
+        updatedSaving: saving,
+      };
+    }
+
+    // Xử lý lựa chọn chuyển tiền đã tiết kiệm vào thẻ
+    else if (saving_option === 'SO002' && card_id) {
+      const card = await this.useCardModel.findById(card_id);
+      if (!card) {
+        throw new NotFoundException('Card not found');
+      }
+
+      card.card_amount += saving.saving_amount;
+      saving.saving_amount = 0;
+      await card.save();
+      await saving.save();
+
+      return {
+        message: 'Saved amount transferred to the card successfully',
+        updatedSaving: saving,
+        updatedCard: card,
+      };
+    } else {
+      throw new BadRequestException(
+        'Invalid option or missing card information',
+      );
+    }
   }
 }
