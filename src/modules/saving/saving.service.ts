@@ -212,13 +212,11 @@ export class SavingService {
     const { card_id, saving_amount, saving_goal_amount, saving_option } =
       goalOptionDto;
 
-    // Tìm mục tiêu tiết kiệm
     const saving = await this.useSavingModal.findById(savingId);
     if (!saving) {
       throw new NotFoundException('Saving transaction does not exist');
     }
 
-    // Xử lý lựa chọn tăng mục tiêu tiết kiệm
     if (saving_option === 'SO001') {
       if (typeof saving_goal_amount !== 'number' || saving_goal_amount <= 0) {
         throw new BadRequestException('Invalid saving goal amount');
@@ -230,10 +228,7 @@ export class SavingService {
         message: 'Saving goal increased successfully',
         updatedSaving: saving,
       };
-    }
-
-    // Xử lý lựa chọn chuyển tiền đã tiết kiệm vào thẻ
-    else if (saving_option === 'SO002' && card_id) {
+    } else if (saving_option === 'SO002' && card_id) {
       const card = await this.useCardModel.findById(card_id);
       if (!card) {
         throw new NotFoundException('Card not found');
@@ -254,5 +249,34 @@ export class SavingService {
         'Invalid option or missing card information',
       );
     }
+  }
+  async getSavingById(savingId: string | undefined, userId: string) {
+    let savings;
+    if (savingId) {
+      savings = await this.useSavingModal
+        .findById(savingId)
+        .populate('category_id')
+        .exec();
+
+      if (!savings || savings.createdBy !== userId) {
+        throw new NotFoundException('Saving not found or unauthorized access');
+      }
+
+      return {
+        savings,
+        category: {
+          category_name: savings.cate_name,
+        },
+      };
+    }
+
+    savings = await this.useSavingModal
+      .find({ createdBy: userId })
+      .populate('category_id');
+
+    return savings.map((saving) => ({
+      saving,
+      category: {},
+    }));
   }
 }

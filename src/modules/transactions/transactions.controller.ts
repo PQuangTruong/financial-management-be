@@ -8,7 +8,6 @@ import {
   Delete,
   Request,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -23,30 +22,17 @@ export class TransactionsController {
     private readonly transactionsService: TransactionsService,
     private readonly authService: AuthsService,
   ) {}
+
   @Post('create-transaction')
   async create(
     @Body() createTransactionDto: CreateTransactionDto,
     @Request() req,
   ) {
-    const {
-      card_id,
-      category_id,
-      trans_amount,
-      trans_type,
-      trans_note,
-      trans_date,
-    } = createTransactionDto.payload;
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
+
     return this.transactionsService.createTransaction(
-      {
-        card_id,
-        category_id,
-        trans_amount,
-        trans_type,
-        trans_note,
-        trans_date,
-      },
+      createTransactionDto.payload,
       decodedToken.userId,
     );
   }
@@ -56,8 +42,10 @@ export class TransactionsController {
     @Body('payload') payload: { trans_type?: string },
     @Request() req,
   ) {
+    console.log(payload?.trans_type);
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
+
     return this.transactionsService.getTransactionsByType(
       decodedToken.userId,
       payload?.trans_type,
@@ -72,24 +60,10 @@ export class TransactionsController {
   ) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    const {
-      card_id,
-      category_id,
-      trans_amount,
-      trans_type,
-      trans_note,
-      trans_date,
-    } = updateTransactionDto.payload;
+
     return this.transactionsService.updateTransaction(
       transactionId,
-      {
-        card_id,
-        category_id,
-        trans_amount,
-        trans_type,
-        trans_note,
-        trans_date,
-      },
+      updateTransactionDto.payload,
       decodedToken.userId,
     );
   }
@@ -98,6 +72,7 @@ export class TransactionsController {
   async deleteTransaction(@Param('id') transactionId: string, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
+
     return this.transactionsService.deleteTransaction(
       transactionId,
       decodedToken.userId,

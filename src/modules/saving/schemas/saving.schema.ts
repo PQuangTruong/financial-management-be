@@ -9,6 +9,9 @@ export class Saving extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Category' })
   category_id: string;
 
+  @Prop({ ref: 'Category' })
+  cate_name: string;
+
   @Prop()
   saving_goals_amount: number;
 
@@ -26,6 +29,9 @@ export class Saving extends Document {
 
   @Prop()
   category_name: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  createdBy: string;
 }
 
 export const savingSchema = SchemaFactory.createForClass(Saving);

@@ -108,6 +108,7 @@ export class AuthsService {
     try {
       const decoded = this.jwtService.verify(token);
       return decoded;
+      console.log(decoded);
     } catch (error) {
       throw new UnauthorizedException('The token is invalid or has expired');
     }

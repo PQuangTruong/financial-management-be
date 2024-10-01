@@ -60,15 +60,8 @@ export class CardsController {
     @Body() updateCardDto: UpdateCardDto,
     @Request() req,
   ) {
-    const authorizationHeader = req.headers.authorization;
-    if (!authorizationHeader) {
-      throw new UnauthorizedException('Token không được cung cấp');
-    }
-    const token = authorizationHeader.split(' ')[1];
+    const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    if (!decodedToken?.userId) {
-      throw new UnauthorizedException('Token không hợp lệ');
-    }
 
     const { card_code, card_number, card_amount } = updateCardDto.payload;
 
@@ -78,7 +71,6 @@ export class CardsController {
       decodedToken.userId,
     );
   }
-
   @Patch('update-card-amount/:id')
   async updateCardAmount(
     @Param('id') id: string, // id là cardId

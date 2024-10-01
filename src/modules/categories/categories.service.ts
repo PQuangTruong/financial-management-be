@@ -44,8 +44,12 @@ export class CategoriesService {
     return await this.useCateModal.findOne({ _id: cateId });
   }
 
-  async findCategoriesByType(userId: string, cate_type?: string) {
-    const query = cate_type ? { cate_type } : {};
+  async findCategoriesByType(cate_type?: string, userId?: string) {
+    const query: any = { createdBy: userId };
+
+    if (cate_type) {
+      query.cate_type = cate_type;
+    }
 
     const categories = await this.useCateModal.find(query);
     if (categories.length === 0) {

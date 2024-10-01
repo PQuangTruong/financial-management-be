@@ -103,7 +103,7 @@ export class CardsService {
 
     const bankList = await this.getBankList();
     const validBank = bankList.find(
-      (bank: any) => bank.code === card.card_code,
+      (bank: any) => bank.code === payload.card_code,
     );
     if (!validBank) {
       throw new BadRequestException('Invalid bank code');
@@ -115,25 +115,25 @@ export class CardsService {
     card.card_amount = payload.card_amount ?? card.card_amount;
 
     await card.save();
-
     return card;
   }
 
-  async removeCard(id: string, userId:string) {
-    const cardDelete = await this.useCardModal.findById(id);
+  async removeCard(id: string, userId: string) {
+    const cardDelete = await this.useCardModal.findOne({
+      _id: id,
+      createdBy: userId,
+    });
 
     if (!cardDelete) {
       throw new NotFoundException('Card not found');
     }
     await this.useCardModal.findByIdAndDelete(id);
 
-    return {
-      message: 'Delete Card successfully',
-    };
+    return { message: 'Delete Card successfully' };
   }
 
   async updateCardAmount(
-    cardId: string, 
+    cardId: string,
     card_number: number,
     trans_amount: number,
     trans_type: string,

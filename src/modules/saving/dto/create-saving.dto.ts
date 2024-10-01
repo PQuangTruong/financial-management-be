@@ -22,7 +22,7 @@ export class CreatePayloadSavingDto {
   @IsString()
   card_id?: string;
   @IsString()
-  category_id: string;
+  category_id?: string;
 }
 
 export class CreateSavingDto {
