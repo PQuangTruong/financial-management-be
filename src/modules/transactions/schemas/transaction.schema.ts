@@ -25,6 +25,8 @@ export class Transaction extends Document {
 
   @Prop()
   trans_note: string;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  createdBy: Types.ObjectId;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

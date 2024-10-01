@@ -18,7 +18,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AuthsService } from '../auths/auths.service';
 import { JwtAuthGuard } from '../auths/passport/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoriesController {
   constructor(
@@ -26,6 +25,7 @@ export class CategoriesController {
     private readonly authService: AuthsService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('create-category')
   async create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];
@@ -37,6 +37,7 @@ export class CategoriesController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('categories-type')
   async getCategoriesByType(
     @Body('payload') payload: { cate_type?: string },
@@ -45,11 +46,12 @@ export class CategoriesController {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
     return await this.categoriesService.findCategoriesByType(
-      decodedToken.userId,
       payload?.cate_type,
+      decodedToken.userId,
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('update-cate/:id')
   async update(
     @Param('id') id: string,
@@ -66,6 +68,7 @@ export class CategoriesController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('delete-cate/:id')
   async remove(@Param('id') id: string, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];

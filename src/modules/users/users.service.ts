@@ -31,7 +31,8 @@ export class UsersService {
 
   // CreateUser Func
   async createUser(payload: CreateUserDto) {
-    const { name, email, password, phone, address, image } = payload;
+    const { name, email, password, phone, address, image, account_name } =
+      payload;
     const isExisted = this.isEmailExist(email);
     if (isExisted) {
       throw new BadRequestException(
@@ -40,6 +41,7 @@ export class UsersService {
     }
     const hashPass = await hashPassword(payload.password);
     const user = await this.userModal.create({
+      account_name: payload?.account_name,
       name: payload?.name,
       email: payload?.email,
       password: hashPass,

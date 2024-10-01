@@ -117,4 +117,12 @@ export class SavingController {
       decodedToken.userId,
     );
   }
+
+  @Get('get-saving/')
+  async getSavingById(@Param('id') savingId: string, @Request() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+
+    return this.savingService.getSavingById(savingId, decodedToken.userId);
+  }
 }
