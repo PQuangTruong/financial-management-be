@@ -17,4 +17,6 @@ export class CreateUserDto {
   address: string;
 
   image: string;
+
+  gender: boolean;
 }

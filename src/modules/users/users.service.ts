@@ -48,6 +48,7 @@ export class UsersService {
       phone: payload?.phone,
       address: payload?.address,
       image: payload?.image,
+      gender: payload?.gender,
     });
 
     return user;
@@ -122,6 +123,8 @@ export class UsersService {
       phone?: number;
       address?: string;
       image?: string;
+      email?: string;
+      gender?: boolean;
     },
   ) {
     const user = await this.userModal.findById(userId);
@@ -134,6 +137,8 @@ export class UsersService {
     user.phone = payload.phone ?? user.phone;
     user.address = payload.address ?? user.address;
     user.image = payload.image ?? user.image;
+    user.email = payload.email?? user.email;
+    user.gender = payload.gender?? user.gender;
 
     await user.save();
 
