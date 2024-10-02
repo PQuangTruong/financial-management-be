@@ -196,7 +196,6 @@ export class SavingService {
       };
     }
 
-    // Nếu chưa hoàn thành mục tiêu, chỉ cần lưu lại số tiền tiết kiệm
     await saving.save();
     return {
       message: 'Saving updated successfully',
@@ -278,5 +277,36 @@ export class SavingService {
       saving,
       category: {},
     }));
+  }
+
+  async deleteSaving(savingId: string, cardId: string, userId: string) {
+    const existingTransaction = await this.useSavingModal.findById(savingId);
+    if (!existingTransaction) {
+      throw new NotFoundException('Saving transaction does not exist');
+    }
+
+    if (existingTransaction.createdBy !== userId) {
+      throw new NotFoundException(
+        'Unauthorized access to this saving transaction',
+      );
+    }
+
+    // Tìm thẻ tương ứng
+    const card = await this.useCardModel.findById(cardId);
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
+
+    // Hoàn lại số tiền vào thẻ
+    card.card_amount += existingTransaction.saving_amount;
+    await card.save();
+
+    // Xóa giao dịch tiết kiệm
+    await this.useSavingModal.findByIdAndDelete(savingId);
+
+    return {
+      message:
+        'Saving transaction deleted successfully and amount refunded to the selected card',
+    };
   }
 }
