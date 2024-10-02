@@ -125,4 +125,19 @@ export class SavingController {
 
     return this.savingService.getSavingById(savingId, decodedToken.userId);
   }
+  @Delete('delete-saving/:id')
+  async deleteSaving(
+    @Param('id') savingId: string,
+    @Body() body: { card_id: string }, // Thêm body để nhận card_id
+    @Request() req,
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+
+    return this.savingService.deleteSaving(
+      savingId,
+      body.card_id,
+      decodedToken.userId,
+    );
+  }
 }
