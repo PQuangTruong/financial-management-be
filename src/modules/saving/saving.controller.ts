@@ -66,56 +66,11 @@ export class SavingController {
     );
   }
 
-  @Patch('update-saving-amount/:id')
-  async updateSavingAmount(
-    @Param('id') savingId: string,
-    @Body() updateSavingAmountDto: UpdateSavingAmountDto,
-    @Request() req,
-  ) {
+  @Post('total-saving')
+  async totalSavingAmonut(@Request() req) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    const { card_id, saving_amount } = updateSavingAmountDto.payload;
-    return this.savingService.updateSavingAmount(
-      savingId,
-      {
-        card_id,
-        saving_amount,
-      },
-      decodedToken.userId,
-    );
-  }
-
-  @Post('check-saving-goal/:savingId')
-  async checkGoal(
-    @Param('savingId') savingId: string,
-    @Body() checkGoalDto: UpdateSavingAmountDto,
-    @Request() req,
-  ) {
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = await this.authService.validateToken(token);
-    const { card_id, saving_amount } = checkGoalDto.payload;
-    return this.savingService.checkSavingGoal(
-      savingId,
-      { card_id, saving_amount },
-      decodedToken.userId,
-    );
-  }
-
-  @Post('handle-saving-goal/:savingId')
-  async handleGoalOption(
-    @Param('savingId') savingId: string,
-    @Body() body: GoalOptionDto,
-    @Request() req,
-  ) {
-    const { card_id, saving_amount, saving_goal_amount, saving_option } =
-      body.payload;
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = await this.authService.validateToken(token);
-    return this.savingService.handleSavingGoalOption(
-      savingId,
-      { card_id, saving_amount, saving_goal_amount, saving_option },
-      decodedToken.userId,
-    );
+    return this.savingService.totalSaving(decodedToken.userId);
   }
 
   @Get('get-saving/')
@@ -123,12 +78,12 @@ export class SavingController {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
 
-    return this.savingService.getSavingById(savingId, decodedToken.userId);
+    return this.savingService.getSavingsByType(savingId, decodedToken.userId);
   }
   @Delete('delete-saving/:id')
   async deleteSaving(
     @Param('id') savingId: string,
-    @Body() body: { card_id: string }, // Thêm body để nhận card_id
+    @Body('payload') payload: { card_id: string },
     @Request() req,
   ) {
     const token = req.headers.authorization.split(' ')[1];
@@ -136,7 +91,7 @@ export class SavingController {
 
     return this.savingService.deleteSaving(
       savingId,
-      body.card_id,
+      payload.card_id,
       decodedToken.userId,
     );
   }
