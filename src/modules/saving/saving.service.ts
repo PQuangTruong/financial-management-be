@@ -117,9 +117,10 @@ export class SavingService {
     userId: string,
   ) {
     const { card_id, saving_amount } = updateSavingDto;
-    const existingTransaction = await this.useSavingModal.findById(savingId);
-    if (!existingTransaction) {
-      throw new NotFoundException('Transaction does not exist');
+
+    const existingSaving = await this.useSavingModal.findById(savingId);
+    if (!existingSaving) {
+      throw new NotFoundException('Saving transaction does not exist');
     }
 
     const card = await this.useCardModel.findById(card_id);
@@ -133,30 +134,17 @@ export class SavingService {
       );
     }
 
-    const difference = saving_amount - existingTransaction.saving_amount;
-
-    if (difference > 0) {
-      if (card.card_amount < difference) {
-        throw new BadRequestException(
-          'The amount of money on the card is not enough to make this transaction',
-        );
-      }
-      card.card_amount -= difference;
-    } else if (difference < 0) {
-      card.card_amount += Math.abs(difference);
-    }
-
+    card.card_amount -= saving_amount;
     await card.save();
 
-    existingTransaction.saving_amount =
-      updateSavingDto.saving_amount ?? existingTransaction.saving_amount;
+    existingSaving.saving_amount += saving_amount;
+    await existingSaving.save();
 
-    await existingTransaction.save();
-
-    const updatedTransaction = await this.useSavingModal.findById(savingId);
+    const updatedSaving = await this.useSavingModal.findById(savingId);
 
     return {
-      updatedTransaction,
+      message: 'Amount added successfully to saving',
+      updatedSaving,
     };
   }
 
@@ -190,6 +178,19 @@ export class SavingService {
 
     return {
       totalSavingAmount: totalAmount,
+    };
+  }
+
+  async totalSavingGoal(userId: string) {
+    const savings = await this.useSavingModal.find({ createdBy: userId });
+
+    const totalGoalAmount = savings.reduce(
+      (sum, saving) => sum + saving.saving_goals_amount,
+      0,
+    );
+
+    return {
+      totalSavingGoal: totalGoalAmount,
     };
   }
 
