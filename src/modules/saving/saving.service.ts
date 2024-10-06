@@ -111,6 +111,55 @@ export class SavingService {
     };
   }
 
+  async updateSavingAmount(
+    savingId: string,
+    updateSavingDto: UpdatePayloadSavingAmountDto,
+    userId: string,
+  ) {
+    const { card_id, saving_amount } = updateSavingDto;
+    const existingTransaction = await this.useSavingModal.findById(savingId);
+    if (!existingTransaction) {
+      throw new NotFoundException('Transaction does not exist');
+    }
+
+    const card = await this.useCardModel.findById(card_id);
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
+
+    if (card.card_amount < saving_amount) {
+      throw new BadRequestException(
+        'The amount of money on the card is not enough to make this transaction',
+      );
+    }
+
+    const difference = saving_amount - existingTransaction.saving_amount;
+
+    if (difference > 0) {
+      if (card.card_amount < difference) {
+        throw new BadRequestException(
+          'The amount of money on the card is not enough to make this transaction',
+        );
+      }
+      card.card_amount -= difference;
+    } else if (difference < 0) {
+      card.card_amount += Math.abs(difference);
+    }
+
+    await card.save();
+
+    existingTransaction.saving_amount =
+      updateSavingDto.saving_amount ?? existingTransaction.saving_amount;
+
+    await existingTransaction.save();
+
+    const updatedTransaction = await this.useSavingModal.findById(savingId);
+
+    return {
+      updatedTransaction,
+    };
+  }
+
   async getSavingsByType(saving_type?: string, userId?: string) {
     const query: any = { createdBy: userId };
 
