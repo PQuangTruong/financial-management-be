@@ -182,10 +182,21 @@ export class UsersService {
   }
 
   async getAllUser(userId: string) {
-    const allCard = await this.userModal.find();
-    if (!allCard || allCard.length === 0) {
-      throw new NotFoundException('Card not found');
+    const user = await this.userModal.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return allCard;
+
+    if (user.account_type !== 'Admin') {
+      throw new BadRequestException('You are not authorized to view all users');
+    }
+
+    const allUsers = await this.userModal.find({ account_type: 'User' });
+    if (!allUsers || allUsers.length === 0) {
+      throw new NotFoundException('No users found');
+    }
+
+    return allUsers;
   }
 }

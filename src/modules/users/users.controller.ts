@@ -65,4 +65,11 @@ export class UsersController {
 
     return await this.usersService.changePass(decodedToken.userId, payload);
   }
+
+  @Get('admin-room')
+  async getAllUsers(@Request() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.usersService.getAllUser(decodedToken.userId);
+  }
 }
