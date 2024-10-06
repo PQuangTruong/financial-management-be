@@ -8,6 +8,7 @@ import {
   Delete,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { SavingService } from './saving.service';
 import { CreateSavingDto } from './dto/create-saving.dto';
@@ -66,6 +67,25 @@ export class SavingController {
     );
   }
 
+  @Patch('update-saving-amount/:id')
+  async updateSavingAmount(
+    @Param('id') savingId: string,
+    @Body() updateSavingAmountDto: UpdateSavingAmountDto,
+    @Request() req,
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    const { card_id, saving_amount } = updateSavingAmountDto.payload;
+    return this.savingService.updateSavingAmount(
+      savingId,
+      {
+        card_id,
+        saving_amount,
+      },
+      decodedToken.userId,
+    );
+  }
+
   @Post('total-saving')
   async totalSavingAmonut(@Request() req) {
     const token = req.headers.authorization.split(' ')[1];
@@ -80,10 +100,10 @@ export class SavingController {
 
     return this.savingService.getSavingsByType(savingId, decodedToken.userId);
   }
-  @Delete('delete-saving/:id')
+  @Delete('delete-saving/:id/:cardId')
   async deleteSaving(
     @Param('id') savingId: string,
-    @Body('payload') payload: { card_id: string },
+    @Param('cardId') cardId: string,
     @Request() req,
   ) {
     const token = req.headers.authorization.split(' ')[1];
@@ -91,7 +111,7 @@ export class SavingController {
 
     return this.savingService.deleteSaving(
       savingId,
-      payload.card_id,
+      cardId,
       decodedToken.userId,
     );
   }
