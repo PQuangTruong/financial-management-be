@@ -94,4 +94,11 @@ export class CardsController {
     const decodedToken = await this.authService.validateToken(token);
     return this.cardsService.removeCard(id, decodedToken.userId);
   }
+
+  @Post('total-card-amount')
+  async totalCardAmounts(@Request() req) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    return this.cardsService.totalCardAmount(decodedToken.userId);
+  }
 }

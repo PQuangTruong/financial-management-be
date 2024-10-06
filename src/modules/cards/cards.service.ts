@@ -163,4 +163,22 @@ export class CardsService {
 
     return card;
   }
+
+  async totalCardAmount(userId: string) {
+    const cards = await this.useCardModal.find({ createdBy: userId });
+
+    const totalCardAmount = cards.reduce(
+      (sum, card) => sum + card.card_amount,
+      0,
+    );
+
+    return {
+      cards: cards.map((card) => ({
+        card_name: card.card_short_name,
+        card_number: card.card_number,
+        card_amount: card.card_amount,
+      })),
+      totalAllCardAmount: totalCardAmount,
+    };
+  }
 }
