@@ -93,13 +93,6 @@ export class SavingController {
     return this.savingService.totalSaving(decodedToken.userId);
   }
 
-  @Post('total-saving-goal')
-  async totalSavingGoal(@Request() req) {
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = await this.authService.validateToken(token);
-    return this.savingService.totalSavingGoal(decodedToken.userId);
-  }
-
   @Get('get-saving/')
   async getSavingById(@Param('id') savingId: string, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];

@@ -11,6 +11,7 @@ import { CardsModule } from './modules/cards/cards.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { SavingModule } from './modules/saving/saving.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SavingModule } from './modules/saving/saving.module';
     CategoriesModule,
     TransactionsModule,
     SavingModule,
+    SettingsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -53,6 +55,7 @@ import { SavingModule } from './modules/saving/saving.module';
       }),
       inject: [ConfigService],
     }),
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
