@@ -176,20 +176,13 @@ export class SavingService {
       0,
     );
 
-    return {
-      totalSavingAmount: totalAmount,
-    };
-  }
-
-  async totalSavingGoal(userId: string) {
-    const savings = await this.useSavingModal.find({ createdBy: userId });
-
     const totalGoalAmount = savings.reduce(
       (sum, saving) => sum + saving.saving_goals_amount,
       0,
     );
 
     return {
+      totalSavingAmount: totalAmount,
       totalSavingGoal: totalGoalAmount,
     };
   }

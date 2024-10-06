@@ -9,6 +9,7 @@ import {
   BadRequestException,
   UseGuards,
   Req,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -47,5 +48,21 @@ export class UsersController {
   @Delete('delete-user')
   async removeUser(@Param() id) {
     return this.usersService.delete(id);
+  }
+
+  @Patch('change-password')
+  async changePassword(
+    @Request() req,
+    @Body('payload') payload: { oldPassword: string; newPassword: string },
+  ) {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = await this.authService.validateToken(token);
+    if (!payload.oldPassword || !payload.newPassword) {
+      throw new BadRequestException(
+        'Old password and new password are required',
+      );
+    }
+
+    return await this.usersService.changePass(decodedToken.userId, payload);
   }
 }

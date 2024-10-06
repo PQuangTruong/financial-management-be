@@ -8,7 +8,7 @@ import { UpdatePayloadUserDto, UpdateUserDto } from './dto/update-user.dto';
 import { Users } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { hashPassword } from '@/others/password-custom';
+import { comparePassword, hashPassword } from '@/others/password-custom';
 import { CreateAuthDto } from '../auths/dto/register-auth.dto';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -98,10 +98,6 @@ export class UsersService {
     return user;
   };
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
   async getUser(userId: string) {
     const user = await this.userModal.findById(userId);
     if (!user) {
@@ -150,5 +146,46 @@ export class UsersService {
     return {
       message: 'Delete user successfully',
     };
+  }
+  async changePass(
+    userId: string,
+    payload: {
+      oldPassword: string;
+      newPassword: string;
+    },
+  ) {
+    const { oldPassword, newPassword } = payload;
+
+    const user = await this.userModal.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isOldPasswordCorrect = await comparePassword(
+      oldPassword,
+      user.password,
+    );
+
+    if (!isOldPasswordCorrect) {
+      throw new BadRequestException('Old password is incorrect.');
+    }
+
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    user.password = hashedNewPassword;
+
+    await user.save();
+
+    return {
+      message: 'Password changed successfully',
+    };
+  }
+
+  async getAllUser(userId: string) {
+    const allCard = await this.userModal.find();
+    if (!allCard || allCard.length === 0) {
+      throw new NotFoundException('Card not found');
+    }
+    return allCard;
   }
 }
