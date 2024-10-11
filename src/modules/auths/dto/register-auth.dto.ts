@@ -30,7 +30,7 @@ class CreatePayloadAuthDto {
   @IsOptional()
   address: string;
   @IsOptional()
-  image: string;
+  gender: string;
 }
 
 export class CreateAuthDto {
