@@ -118,7 +118,9 @@ export class UsersService {
       phone?: number;
       email?: string;
       address?: string;
+
       gender?: string;
+
     },
   ) {
     const user = await this.userModal.findById(userId);
@@ -131,7 +133,9 @@ export class UsersService {
     user.phone = payload.phone ?? user.phone;
     user.email = payload.email ?? user.email;
     user.address = payload.address ?? user.address;
+
     user.gender = payload.gender ?? user.gender;
+
 
     await user.save();
 

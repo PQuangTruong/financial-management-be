@@ -6,6 +6,7 @@ import {
   IsString,
   ValidateNested,
 } from '@nestjs/class-validator';
+
 import { IsBoolean, IsEmail } from 'class-validator';
 
 export class UpdatePayloadUserDto {
@@ -28,6 +29,9 @@ export class UpdatePayloadUserDto {
   @IsOptional()
   @IsString()
   gender: string;
+
+
+
 }
 
 export class UpdateUserDto {

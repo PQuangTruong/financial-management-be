@@ -39,6 +39,9 @@ export class Users {
 
   @Prop()
   code_expire: string;
+
+  @Prop()
+  gender: boolean;  
 }
 
 export const UserSchema = SchemaFactory.createForClass(Users);

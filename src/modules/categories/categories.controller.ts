@@ -47,8 +47,11 @@ export class CategoriesController {
     const decodedToken = await this.authService.validateToken(token);
     return await this.categoriesService.findCategoriesByType(
       payload?.cate_type,
+
       decodedToken.userId,
     );
+
+    ); 
   }
 
   @UseGuards(JwtAuthGuard)
