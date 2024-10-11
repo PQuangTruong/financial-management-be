@@ -26,7 +26,7 @@ export class CategoriesService {
   };
 
   async create(payload: CreatePayloadCategoryDto, userId: string) {
-    const { cate_name, cate_type } = payload;
+    const { cate_name, cate_type, cate_note } = payload;
     const cateExisted = await this.isCateExist(cate_name);
     if (cateExisted) {
       throw new BadRequestException(`Category ${cate_name} is existed`);
@@ -34,6 +34,7 @@ export class CategoriesService {
     const category = await this.useCateModal.create({
       cate_name: payload?.cate_name,
       cate_type: payload?.cate_type,
+      cate_note: payload?.cate_note,
       createdBy: userId,
     });
     return category;
@@ -68,6 +69,7 @@ export class CategoriesService {
     payload: {
       cate_name?: string;
       cate_type?: string;
+      cate_note?: string;
     },
     userId,
   ) {
@@ -79,6 +81,7 @@ export class CategoriesService {
     // Cập nhật các trường nếu có giá trị mới
     cate.cate_name = payload.cate_name ?? cate.cate_name;
     cate.cate_type = payload.cate_type ?? cate.cate_type;
+    cate.cate_note = payload.cate_note ?? cate.cate_note;
 
     await cate.save();
 

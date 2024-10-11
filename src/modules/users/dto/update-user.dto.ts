@@ -6,7 +6,7 @@ import {
   IsString,
   ValidateNested,
 } from '@nestjs/class-validator';
-import { IsEmail } from 'class-validator';
+import { IsBoolean, IsEmail } from 'class-validator';
 
 export class UpdatePayloadUserDto {
   @IsOptional()
