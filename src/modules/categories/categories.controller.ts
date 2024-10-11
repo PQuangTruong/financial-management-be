@@ -30,9 +30,9 @@ export class CategoriesController {
   async create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    const { cate_name, cate_type } = createCategoryDto.payload;
+    const { cate_name, cate_type, cate_note } = createCategoryDto.payload;
     return this.categoriesService.create(
-      { cate_name, cate_type },
+      { cate_name, cate_type, cate_note },
       decodedToken.userId,
     );
   }
@@ -63,10 +63,10 @@ export class CategoriesController {
   ) {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
-    const { cate_name, cate_type } = updateCategoryDto.payload;
+    const { cate_name, cate_type, cate_note } = updateCategoryDto.payload;
     return this.categoriesService.update(
       id,
-      { cate_name, cate_type },
+      { cate_name, cate_type, cate_note },
       decodedToken.userId,
     );
   }

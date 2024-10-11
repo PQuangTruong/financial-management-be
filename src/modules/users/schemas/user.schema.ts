@@ -22,6 +22,8 @@ export class Users {
 
   @Prop()
   address: string;
+  @Prop()
+  gender: string;
 
   @Prop()
   image: string;

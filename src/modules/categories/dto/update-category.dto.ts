@@ -10,6 +10,9 @@ export class UpdatePayloadCategoryDto {
   cate_name: string;
   @IsString()
   cate_type: string;
+  @IsString()
+  @IsOptional()
+  cate_note;
 }
 
 export class UpdateCategoryDto {

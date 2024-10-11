@@ -36,13 +36,14 @@ export class UsersController {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = await this.authService.validateToken(token);
 
-    const { name, phone, address, image, email, gender } = updateUserDto.payload;
+
+    const { name, phone, email, address, gender } = updateUserDto.payload;
+
     return await this.usersService.update(decodedToken.userId, {
       name,
       phone,
-      address,
-      image,
       email,
+      address,
       gender,
     });
   }

@@ -18,5 +18,6 @@ export class CreateUserDto {
 
   image: string;
 
-  gender: boolean;
+  gender: string;
+
 }

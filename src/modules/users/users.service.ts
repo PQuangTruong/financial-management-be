@@ -31,7 +31,7 @@ export class UsersService {
 
   // CreateUser Func
   async createUser(payload: CreateUserDto) {
-    const { name, email, password, phone, address, image, account_name } =
+    const { name, email, password, phone, address, gender, account_name } =
       payload;
     const isExisted = this.isEmailExist(email);
     if (isExisted) {
@@ -47,7 +47,6 @@ export class UsersService {
       password: hashPass,
       phone: payload?.phone,
       address: payload?.address,
-      image: payload?.image,
       gender: payload?.gender,
     });
 
@@ -80,7 +79,7 @@ export class UsersService {
       name: payload?.name ?? null,
       phone: payload?.phone ?? null,
       address: payload?.address ?? null,
-      image: payload?.image ?? null,
+      gender: payload?.gender ?? null,
       is_active: false,
       code_id: codeId,
       code_expire: dayjs().add(5, 'minutes'),
@@ -117,10 +116,11 @@ export class UsersService {
     payload: {
       name?: string;
       phone?: number;
-      address?: string;
-      image?: string;
       email?: string;
-      gender?: boolean;
+      address?: string;
+
+      gender?: string;
+
     },
   ) {
     const user = await this.userModal.findById(userId);
@@ -131,10 +131,11 @@ export class UsersService {
     // Cập nhật các trường nếu có giá trị mới
     user.name = payload.name ?? user.name;
     user.phone = payload.phone ?? user.phone;
+    user.email = payload.email ?? user.email;
     user.address = payload.address ?? user.address;
-    user.image = payload.image ?? user.image;
-    user.email = payload.email?? user.email;
-    user.gender = payload.gender?? user.gender;
+
+    user.gender = payload.gender ?? user.gender;
+
 
     await user.save();
 
